@@ -122,6 +122,8 @@
   const msg = document.getElementById("msg");
   const card = document.getElementById("card");
 
+  const API_BASE_URL = "https://kcomer-api-production.up.railway.app";
+
   if (!token) {
     msg.innerText = "Enlace inválido o incompleto.";
     btn.disabled = true;
@@ -156,9 +158,8 @@
     btn.innerText = "Procesando...";
 
     try {
-      // cambiar en un futuro cuando se suba a prod
-      const res = await fetch(
-        "http://localhost:8080/api/v1/auth/reset-password",
+      const response = await fetch(
+        `${API_BASE_URL}/api/v1/auth/reset-password`,
         {
           method: "POST",
           headers: {
@@ -171,7 +172,7 @@
         }
       );
 
-      if (res.ok) {
+      if (response.ok) {
         card.innerHTML = `
           <h2>Contraseña actualizada</h2>
           <p class="success">
@@ -189,7 +190,8 @@
         btn.disabled = false;
         btn.innerText = "Cambiar contraseña";
       }
-    } catch (e) {
+
+    } catch (error) {
       msg.innerText = "No se pudo conectar con el servidor.";
       btn.disabled = false;
       btn.innerText = "Cambiar contraseña";
