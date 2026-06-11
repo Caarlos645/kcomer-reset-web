@@ -4,258 +4,507 @@
   <meta charset="UTF-8" />
   <title>Restablecer contraseña | KComer</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-
   <style>
+    *, *::before, *::after { box-sizing: border-box; }
+
     body {
       margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f5f5f5;
+      min-height: 100vh;
+      background: #F8F9FB;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
       display: flex;
-      justify-content: center;
+      flex-direction: column;
       align-items: center;
-      height: 100vh;
+      justify-content: center;
+      padding: 24px 16px;
+      color: #1B1F2A;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 24px;
+    }
+    .brand-dot {
+      width: 34px; height: 34px;
+      border-radius: 10px;
+      background: #E53935;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .brand-dot svg { width: 18px; height: 18px; }
+    .brand-name {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
     }
 
     .card {
-      background: #ffffff;
-      padding: 28px;
-      border-radius: 10px;
+      background: #fff;
+      border-radius: 20px;
+      border: 1px solid #EDEFF3;
+      padding: 32px 28px;
       width: 100%;
       max-width: 420px;
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.07);
     }
 
-    h2 {
-      margin-top: 0;
+    .card-title {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.4px;
+      margin: 0 0 6px;
       text-align: center;
-      color: #333;
+    }
+    .card-subtitle {
+      font-size: 14px;
+      color: #6B7280;
+      text-align: center;
+      margin: 0 0 28px;
+      line-height: 1.5;
     }
 
-    input {
+    .field { margin-bottom: 14px; }
+    .field label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .input-wrap { position: relative; }
+    .input-wrap input {
       width: 100%;
-      padding: 12px;
-      margin-top: 12px;
-      border-radius: 6px;
-      border: 1px solid #ccc;
+      padding: 14px 44px 14px 14px;
+      border-radius: 14px;
+      border: 1.5px solid #EDEFF3;
+      background: #fff;
       font-size: 15px;
-      box-sizing: border-box;
+      color: #1B1F2A;
+      outline: none;
+      transition: border-color 0.15s;
+      font-family: inherit;
+    }
+    .input-wrap input:focus { border-color: #E53935; }
+    .input-wrap input.error-border { border-color: #DC2626; }
+
+    .eye-btn {
+      position: absolute;
+      right: 12px; top: 50%;
+      transform: translateY(-50%);
+      background: none; border: none;
+      cursor: pointer; padding: 4px;
+      color: #9CA3AF;
+      display: flex; align-items: center;
+    }
+    .eye-btn:hover { color: #6B7280; }
+
+    .field-error {
+      font-size: 12px;
+      color: #DC2626;
+      margin-top: 5px;
+      display: none;
+    }
+    .field-error.visible { display: block; }
+
+    .strength-bar {
+      margin-top: 6px;
+      height: 4px;
+      border-radius: 4px;
+      background: #EDEFF3;
+      overflow: hidden;
+    }
+    .strength-fill {
+      height: 100%;
+      border-radius: 4px;
+      width: 0%;
+      transition: width 0.3s, background 0.3s;
+    }
+    .strength-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #9CA3AF;
+      margin-top: 4px;
+      min-height: 16px;
     }
 
-    .toggle {
-      margin-top: 10px;
-      display: flex;
-      align-items: center;
-      font-size: 14px;
-      color: #555;
-      cursor: pointer;
-    }
-
-    .toggle input {
-      width: auto;
-      margin-right: 8px;
-    }
-
-    button {
+    .btn-primary {
       width: 100%;
-      padding: 12px;
-      margin-top: 20px;
-      border-radius: 6px;
+      padding: 15px;
+      margin-top: 8px;
+      border-radius: 14px;
       border: none;
-      background: #e53935;
-      color: #ffffff;
-      font-size: 16px;
+      background: #E53935;
+      color: #fff;
+      font-size: 15px;
+      font-weight: 700;
       cursor: pointer;
+      letter-spacing: 0.1px;
+      transition: background 0.15s;
+      font-family: inherit;
     }
+    .btn-primary:hover:not(:disabled) { background: #C62828; }
+    .btn-primary:disabled { background: #E0E0E0; color: #9CA3AF; cursor: not-allowed; }
 
-    button:disabled {
-      background: #cccccc;
-      cursor: not-allowed;
+    .api-error {
+      display: none;
+      background: #FFE4E4;
+      border: 1px solid #FECACA;
+      border-radius: 10px;
+      padding: 12px 14px;
+      font-size: 13px;
+      color: #991B1B;
+      margin-bottom: 16px;
+      line-height: 1.5;
     }
+    .api-error.visible { display: block; }
 
-    .btn-secondary {
-      background: transparent;
-      color: #e53935;
-      border: 1.5px solid #e53935;
-      margin-top: 10px;
-    }
-
-    .msg {
-      margin-top: 16px;
+    /* State screens */
+    .state-screen {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
       text-align: center;
+    }
+    .state-icon {
+      width: 64px; height: 64px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      margin-bottom: 20px;
+    }
+    .state-icon.red   { background: #FFE4E4; }
+    .state-icon.green { background: #DCFCE7; }
+    .state-icon svg   { width: 30px; height: 30px; }
+
+    .state-title {
+      font-size: 20px;
+      font-weight: 800;
+      margin: 0 0 8px;
+      letter-spacing: -0.3px;
+    }
+    .state-body {
       font-size: 14px;
-      color: #e53935;
+      color: #6B7280;
+      line-height: 1.6;
+      margin: 0;
     }
 
-    .success {
-      color: #2e7d32;
+    /* "Open the app" hint box */
+    .app-hint {
+      margin-top: 20px;
+      background: #F8F9FB;
+      border: 1px solid #EDEFF3;
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-size: 13px;
+      color: #6B7280;
+      line-height: 1.6;
       text-align: center;
     }
+    .app-hint strong { color: #1B1F2A; }
 
-    .loading-text {
-      text-align: center;
-      color: #888;
-      margin-top: 16px;
+    .spinner {
+      width: 32px; height: 32px;
+      border: 3px solid #EDEFF3;
+      border-top-color: #E53935;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin-bottom: 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loading-label { font-size: 14px; color: #6B7280; }
+
+    .btn-spinner {
+      width: 18px; height: 18px;
+      border: 2px solid rgba(255,255,255,0.4);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      display: inline-block;
+      vertical-align: middle;
+      margin-right: 8px;
     }
   </style>
 </head>
-
 <body>
 
-<div class="card" id="card">
-  <h2>Restablecer contraseña</h2>
-  <p class="loading-text" id="loading-msg">Comprobando enlace...</p>
-</div>
+  <div class="brand">
+    <div class="brand-dot">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="12" cy="12" r="9" stroke="#fff" stroke-width="2"/>
+        <path d="M9 7v4a3 3 0 0 0 3 3v4M15 7v4a3 3 0 0 1-3 3" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <span class="brand-name">KComer</span>
+  </div>
+
+  <div class="card" id="card">
+
+    <!-- Loading -->
+    <div id="state-loading" class="state-screen">
+      <div class="spinner"></div>
+      <p class="loading-label">Comprobando enlace...</p>
+    </div>
+
+    <!-- Fatal error -->
+    <div id="state-error" class="state-screen" style="display:none;">
+      <div class="state-icon red">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2" stroke-linecap="round">
+          <circle cx="12" cy="12" r="10"/>
+          <line x1="12" y1="8" x2="12" y2="12"/>
+          <line x1="12" y1="16" x2="12.01" y2="16"/>
+        </svg>
+      </div>
+      <p class="state-title" id="error-title">El enlace no es válido</p>
+      <p class="state-body"  id="error-body">Este enlace no es válido.</p>
+      <!-- No button here — the user must go back to the app -->
+      <div class="app-hint">
+        Para solicitar un nuevo enlace, abre la app <strong>KComer</strong>
+        y usa la opción <strong>«¿Olvidaste tu contraseña?»</strong>
+        en la pantalla de inicio de sesión.
+      </div>
+    </div>
+
+    <!-- Form -->
+    <div id="state-form" style="display:none;">
+      <p class="card-title">Nueva contraseña</p>
+      <p class="card-subtitle">Crea una contraseña segura de al menos 10 caracteres.</p>
+
+      <div class="api-error" id="api-error"></div>
+
+      <div class="field">
+        <label for="password">Contraseña nueva</label>
+        <div class="input-wrap">
+          <input type="password" id="password" autocomplete="new-password"
+                 placeholder="Mínimo 10 caracteres"
+                 oninput="onPasswordInput()" />
+          <button class="eye-btn" type="button" onclick="toggleEye('password','eye1')" tabindex="-1">
+            <svg id="eye1" viewBox="0 0 24 24" width="20" height="20" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+        </div>
+        <div class="strength-bar"><div class="strength-fill" id="strength-fill"></div></div>
+        <div class="strength-label" id="strength-label"></div>
+        <div class="field-error" id="err-password"></div>
+      </div>
+
+      <div class="field">
+        <label for="confirm">Repetir contraseña</label>
+        <div class="input-wrap">
+          <input type="password" id="confirm" autocomplete="new-password"
+                 placeholder="Repite la contraseña"
+                 oninput="onConfirmInput()" />
+          <button class="eye-btn" type="button" onclick="toggleEye('confirm','eye2')" tabindex="-1">
+            <svg id="eye2" viewBox="0 0 24 24" width="20" height="20" fill="none"
+                 stroke="currentColor" stroke-width="2" stroke-linecap="round">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+              <circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+        </div>
+        <div class="field-error" id="err-confirm"></div>
+      </div>
+
+      <button class="btn-primary" id="btn-submit" onclick="submitReset()">
+        Cambiar contraseña
+      </button>
+    </div>
+
+    <!-- Success -->
+    <div id="state-success" class="state-screen" style="display:none;">
+      <div class="state-icon green">
+        <svg viewBox="0 0 24 24" fill="none" stroke="#16A34A" stroke-width="2.5"
+             stroke-linecap="round" stroke-linejoin="round">
+          <polyline points="20 6 9 17 4 12"/>
+        </svg>
+      </div>
+      <p class="state-title">Contraseña actualizada</p>
+      <p class="state-body">Tu contraseña se ha cambiado correctamente.</p>
+      <div class="app-hint">
+        Ya puedes abrir la app <strong>KComer</strong> e iniciar sesión
+        con tu nueva contraseña.
+      </div>
+    </div>
+
+  </div><!-- /card -->
 
 <script>
-  const params = new URLSearchParams(window.location.search);
-  const token = params.get("token");
+  const API    = "https://kcomer-api-production.up.railway.app";
+  const token  = new URLSearchParams(window.location.search).get("token");
 
-  const API_BASE_URL = "https://kcomer-api-production.up.railway.app";
-  const card = document.getElementById("card");
+  // ── State ────────────────────────────────────────────────────────────────
 
-  // ── Helpers ──────────────────────────────────────────────────────────────
-
-  function showError(title, detail) {
-    card.innerHTML = `
-      <h2>${title}</h2>
-      <p style="text-align:center;color:#555;font-size:15px;">${detail}</p>
-      <button class="btn-secondary" style="background:transparent;color:#e53935;border:1.5px solid #e53935;width:100%;padding:12px;margin-top:20px;border-radius:6px;font-size:15px;cursor:pointer;"
-        onclick="window.location.href='https://app.kcomer.es/forgot-password'">
-        Solicitar nuevo enlace
-      </button>
-    `;
+  function show(id) {
+    ["state-loading","state-error","state-form","state-success"]
+      .forEach(s => document.getElementById(s).style.display = s === id ? "" : "none");
   }
 
-  function showForm() {
-    card.innerHTML = `
-      <h2>Restablecer contraseña</h2>
-
-      <input
-        type="password"
-        id="password"
-        placeholder="Nueva contraseña"
-        autocomplete="new-password"
-      />
-
-      <input
-        type="password"
-        id="confirm"
-        placeholder="Confirmar contraseña"
-        autocomplete="new-password"
-      />
-
-      <label class="toggle">
-        <input type="checkbox" onclick="togglePassword()" />
-        Mostrar contraseñas
-      </label>
-
-      <button id="btn" onclick="resetPassword()">Cambiar contraseña</button>
-
-      <div class="msg" id="msg"></div>
-    `;
+  function showFatalError(title, body) {
+    document.getElementById("error-title").textContent = title;
+    document.getElementById("error-body").textContent  = body;
+    show("state-error");
   }
 
-  function togglePassword() {
-    const pwd = document.getElementById("password");
-    const confirm = document.getElementById("confirm");
-    const type = pwd.type === "password" ? "text" : "password";
-    pwd.type = type;
-    confirm.type = type;
+  // ── Eye toggle ───────────────────────────────────────────────────────────
+
+  function toggleEye(inputId, eyeId) {
+    const input  = document.getElementById(inputId);
+    const isText = input.type === "text";
+    input.type   = isText ? "password" : "text";
+    document.getElementById(eyeId).innerHTML = isText
+      ? `<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>`
+      : `<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+         <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+         <line x1="1" y1="1" x2="23" y2="23"/>`;
   }
 
-  async function resetPassword() {
-    const password = document.getElementById("password").value.trim();
-    const confirm = document.getElementById("confirm").value.trim();
-    const btn = document.getElementById("btn");
-    const msg = document.getElementById("msg");
+  // ── Strength ─────────────────────────────────────────────────────────────
 
-    msg.innerText = "";
-
-    if (password.length < 6) {
-      msg.innerText = "La contraseña debe tener al menos 6 caracteres.";
-      return;
+  function onPasswordInput() {
+    const val    = document.getElementById("password").value;
+    const score  = [val.length >= 10, val.length >= 14,
+                    /[A-Z]/.test(val), /[0-9]/.test(val),
+                    /[^A-Za-z0-9]/.test(val)].filter(Boolean).length;
+    const colors = ["#DC2626","#F97316","#EAB308","#22C55E","#16A34A"];
+    const labels = ["Muy débil","Débil","Regular","Buena","Muy segura"];
+    const fill   = document.getElementById("strength-fill");
+    const lbl    = document.getElementById("strength-label");
+    if (!val) {
+      fill.style.width = "0%";
+      lbl.textContent  = "";
+    } else {
+      const i = Math.max(0, score - 1);
+      fill.style.width      = (Math.max(1, score) * 20) + "%";
+      fill.style.background = colors[i];
+      lbl.textContent       = labels[i];
+      lbl.style.color       = colors[i];
     }
+    setFieldError("password", "");
+    hideApiError();
+    if (document.getElementById("confirm").value) onConfirmInput();
+  }
 
-    if (password !== confirm) {
-      msg.innerText = "Las contraseñas no coinciden.";
-      return;
+  function onConfirmInput() {
+    setFieldError("confirm", "");
+    hideApiError();
+  }
+
+  // ── Field errors ─────────────────────────────────────────────────────────
+
+  function setFieldError(id, msg) {
+    const el    = document.getElementById("err-" + id);
+    const input = document.getElementById(id);
+    if (msg) {
+      el.textContent = msg;
+      el.classList.add("visible");
+      input.classList.add("error-border");
+    } else {
+      el.textContent = "";
+      el.classList.remove("visible");
+      input.classList.remove("error-border");
     }
+  }
 
-    btn.disabled = true;
-    btn.innerText = "Procesando...";
+  function showApiError(msg) {
+    const el = document.getElementById("api-error");
+    el.textContent = msg;
+    el.classList.add("visible");
+  }
+
+  function hideApiError() {
+    document.getElementById("api-error").classList.remove("visible");
+  }
+
+  // ── Submit ───────────────────────────────────────────────────────────────
+
+  async function submitReset() {
+    const password = document.getElementById("password").value;
+    const confirm  = document.getElementById("confirm").value;
+    const btn      = document.getElementById("btn-submit");
+
+    setFieldError("password", "");
+    setFieldError("confirm",  "");
+    hideApiError();
+
+    // Client-side validation — errors shown inline, form stays open
+    let ok = true;
+    if (!password) {
+      setFieldError("password", "Introduce una contraseña."); ok = false;
+    } else if (password.length < 10) {
+      setFieldError("password", "La contraseña debe tener al menos 10 caracteres."); ok = false;
+    }
+    if (!confirm) {
+      setFieldError("confirm", "Repite la contraseña."); ok = false;
+    } else if (password && confirm !== password) {
+      setFieldError("confirm", "Las contraseñas no coinciden."); ok = false;
+    }
+    if (!ok) return; // form stays open, user corrects and retries
+
+    btn.disabled    = true;
+    btn.innerHTML   = `<span class="btn-spinner"></span>Cambiando contraseña...`;
 
     try {
-      const response = await fetch(
-        `${API_BASE_URL}/api/v1/auth/reset-password`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ token, newPassword: password })
-        }
-      );
+      const res = await fetch(`${API}/api/v1/auth/reset-password`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token, newPassword: password })
+      });
 
-      if (response.ok) {
-        card.innerHTML = `
-          <h2>Contraseña actualizada</h2>
-          <p class="success">Tu contraseña se ha cambiado correctamente.</p>
-          <p class="success">Este enlace ya no puede volver a utilizarse.</p>
-          <p class="success">Ya puedes volver a la app e iniciar sesión.</p>
-        `;
-      } else {
-        // Show the real error from the API, not a generic message
-        let apiMessage = "El enlace ha expirado o ya fue utilizado.";
-        try {
-          const data = await response.json();
-          if (data && data.message) apiMessage = data.message;
-        } catch (_) {}
+      if (res.ok) { show("state-success"); return; }
 
-        showError("No se pudo actualizar la contraseña", apiMessage);
-      }
+      let serverMsg = "";
+      try { const d = await res.json(); serverMsg = d?.message ?? ""; } catch (_) {}
 
-    } catch (error) {
-      showError("Error de conexión", "No se pudo conectar con el servidor. Comprueba tu conexión e inténtalo de nuevo.");
-    }
-  }
+      const lower   = serverMsg.toLowerCase();
+      const isFatal = lower.includes("expirado") || lower.includes("utilizado")
+                   || lower.includes("inválido") || lower.includes("invalido");
 
-  // ── Validate token on load (no-op check, doesn't consume the token) ──────
-
-  async function validateAndRender() {
-    if (!token) {
-      showError("Enlace inválido", "Este enlace no contiene un token válido. Solicita un nuevo correo de recuperación.");
-      return;
-    }
-
-    try {
-      const res = await fetch(
-        `${API_BASE_URL}/api/v1/auth/validate-reset-token?token=${encodeURIComponent(token)}`
-      );
-      const data = res.ok ? await res.json() : null;
-      const status = data?.data ?? "error";
-
-      if (status === "valid") {
-        showForm();
-      } else if (status === "expired") {
-        showError(
-          "El enlace ha caducado",
-          "Este enlace de recuperación ya no es válido (caduca en 1 hora). Solicita uno nuevo."
-        );
-      } else if (status === "used") {
-        showError(
-          "El enlace ya fue utilizado",
-          "Este enlace solo se puede usar una vez. Si necesitas volver a cambiar tu contraseña, solicita un nuevo enlace."
+      if (isFatal) {
+        // Token gone — show fatal screen (no retry makes sense)
+        showFatalError(
+          "El enlace ya no es válido",
+          serverMsg || "Este enlace ha expirado o ya fue utilizado."
         );
       } else {
-        // invalid or error — show the form anyway and let the API decide
-        // (could be a temporary network issue with the validate call)
-        showForm();
+        // Recoverable (e.g. validation) — keep form open
+        showApiError(serverMsg || "No se pudo actualizar la contraseña. Inténtalo de nuevo.");
+        btn.disabled   = false;
+        btn.textContent = "Cambiar contraseña";
       }
+
     } catch (_) {
-      // If the validate call fails (network), show the form and let the real POST decide
-      showForm();
+      showApiError("No se pudo conectar con el servidor. Comprueba tu conexión e inténtalo de nuevo.");
+      btn.disabled    = false;
+      btn.textContent = "Cambiar contraseña";
     }
   }
 
-  validateAndRender();
+  // ── Init: validate token without consuming it ────────────────────────────
+
+  async function init() {
+    if (!token) {
+      showFatalError(
+        "Enlace inválido",
+        "Este enlace no contiene ningún token. Solicita un nuevo correo desde la app."
+      );
+      return;
+    }
+    try {
+      const res    = await fetch(`${API}/api/v1/auth/validate-reset-token?token=${encodeURIComponent(token)}`);
+      const status = res.ok ? (await res.json())?.data : "error";
+
+      if      (status === "expired") showFatalError("El enlace ha caducado",       "Este enlace expiró (válido durante 1 hora). Solicita uno nuevo desde la app.");
+      else if (status === "used")    showFatalError("El enlace ya fue utilizado",   "Este enlace solo se puede usar una vez. Solicita uno nuevo desde la app si lo necesitas.");
+      else if (status === "invalid") showFatalError("Enlace no reconocido",         "Este enlace no existe o ya no es válido. Solicita uno nuevo desde la app.");
+      else                           show("state-form"); // "valid" o error de red → mostrar formulario
+    } catch (_) {
+      show("state-form"); // Si falla la validación por red, dejamos intentar igualmente
+    }
+  }
+
+  init();
 </script>
 
 </body>
